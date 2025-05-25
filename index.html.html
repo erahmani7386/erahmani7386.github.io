@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אבחון סגנון פיקוד מעצב</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif; /* A common Hebrew font */
+            background-color: #F7F7F7;
+            color: #073B4C;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .header-bg {
+            background-color: #118AB2; /* Accent Blue */
+            color: white;
+        }
+        .primary-bg { background-color: #FF6B6B; }
+        .secondary-bg { background-color: #FFD166; }
+        .accent1-bg { background-color: #06D6A0; }
+        .accent2-bg { background-color: #118AB2; }
+        .text-primary { color: #FF6B6B; }
+        .text-secondary { color: #FFD166; }
+        .text-accent1 { color: #06D6A0; }
+        .text-accent2 { color: #118AB2; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #FF6B6B;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #E05252;
+        }
+        .btn-secondary {
+            background-color: #118AB2;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #0E708C;
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #073B4C;
+        }
+        h1 { font-size: 2.25rem; margin-bottom: 1rem; }
+        h2 { font-size: 1.875rem; margin-bottom: 0.75rem; margin-top: 1.5rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 0.5rem; margin-top: 1rem; }
+        p { margin-bottom: 1rem; line-height: 1.6; }
+        ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px; /* Max height */
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px; /* Taller on larger screens */
+            }
+        }
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        .form-question {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+        }
+        .form-question label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .form-question .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .form-question .options label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        .form-question .options input[type="radio"] {
+            margin-left: 0.5rem;
+        }
+        .anchor-text {
+            font-size: 0.875rem;
+            color: #4A5568;
+            margin-top: 0.25rem;
+        }
+        /* For the sticky navigation (optional, if implemented) */
+        .sticky-nav {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 50;
+            padding: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .sticky-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .sticky-nav a {
+            text-decoration: none;
+            color: #118AB2;
+            font-weight: 500;
+        }
+        .sticky-nav a:hover {
+            color: #FF6B6B;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- 
+        Infographic Plan Summary:
+        1. Introduction: Purpose and overview of transformational leadership.
+        2. Four Pillars: Detailed explanation of II, IM, IS, IC with military context.
+        3. Importance: Benefits for unit and soldier.
+        4. Assessment Tool: How the 360-degree feedback and BARS work.
+        5. Leadership Profile: Radar chart visualization and gap analysis.
+        6. Development Roadmap: Strengths, weaknesses, and SMART goals.
+        7. Practical Strategies: Actionable advice for each pillar.
+        8. Commander's Role: Guidance for mentors.
+        9. Conclusion: Emphasis on continuous development.
+        10. Forms: Self-assessment and commander assessment forms.
+
+        Visualization Choices:
+        - Section 1: Text and typography. Goal: Inform.
+        - Section 2: Grid of cards with icons (Unicode/CSS). Goal: Organize. Justification: Clearly presents the four pillars. Method: HTML/CSS. NO SVG.
+        - Section 3: Bullet points/icon-text pairs. Goal: Inform. Justification: Highlights key benefits concisely. Method: HTML/CSS. NO SVG.
+        - Section 4: Simple flow diagram (HTML/CSS boxes and arrows). Goal: Organize. Justification: Illustrates the assessment process. Method: HTML/CSS. NO SVG.
+        - Section 5: Radar Chart. Goal: Compare. Justification: Ideal for comparing multiple dimensions (the four pillars) between two data sets (self vs. commander). Library: Chart.js (Canvas). NO SVG.
+        - Section 6: Text sections with distinct visual cues. Goal: Organize. Justification: Separates strengths and areas for improvement. Method: HTML/CSS. NO SVG.
+        - Section 7: Cards with bulleted lists/text. Goal: Inform. Justification: Provides actionable advice clearly. Method: HTML/CSS. NO SVG.
+        - Section 8: Bulleted list. Goal: Inform. Justification: Clear guidance for commanders. Method: HTML/CSS. NO SVG.
+        - Section 9: Text and typography. Goal: Inform.
+        - Section 10: HTML forms. Goal: Data Input. Justification: Standard form elements for data collection. Method: HTML. NO SVG.
+
+        Confirmation: No Mermaid JS or SVG graphics are used in this document.
+    -->
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-12 header-bg p-8 rounded-lg">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">כלי לאבחון סגנון פיקודי-מנהיגותי</h1>
+            <p class="text-xl md:text-2xl">מנהיגות מעצבת לסגן קצין מחלקה</p>
+            <p class="mt-4 text-lg">כלי זה נועד לסייע לך ולמפקדך לאבחן את סגנון המנהיגות שלך, תוך התמקדות בעקרונות המנהיגות המעצבת. מטרתו היא לספק תמונה ברורה ואינטואיטיבית שתאפשר שיפור בתהליך החניכה.</p>
+        </header>
+
+        <nav id="sticky-nav" class="sticky-nav mb-8 hidden md:block">
+            <ul>
+                <li><a href="#introduction">מבוא</a></li>
+                <li><a href="#pillars">עמודי התווך</a></li>
+                <li><a href="#importance">חשיבות</a></li>
+                <li><a href="#tool">כלי האבחון</a></li>
+                <li><a href="#profile">פרופיל מנהיגות</a></li>
+                <li><a href="#roadmap">מפת דרכים</a></li>
+                <li><a href="#strategies">אסטרטגיות</a></li>
+                <li><a href="#commander">תפקיד המפקד</a></li>
+                <li><a href="#forms">טופס האבחון</a></li>
+            </ul>
+        </nav>
+
+        <section id="introduction" class="card">
+            <h2>פרק 1: יסודות המנהיגות המעצבת בפיקוד צבאי</h2>
+            <h3>הגדרת מנהיגות מעצבת: מעבר לפקודות להשראה</h3>
+            <p>מנהיגות מעצבת היא גישה דינמית שבה מנהיגים מעוררים השראה בקרב צוותיהם, על ידי התמקדות בערכים. זוהי גישה המעלה את המוטיבציה ומחזקת את הזהות. כמו כן מטפחת מערכת יחסים שבה הן המנהיג והן המונהג מתפתחים. בהקשר הפיקוד הימי, משמעות הדבר היא התפתחות מציות גרידא (מתן פקודות ישירות) לעבר טיפוח מחויבות עמוקה, יוזמה ויצירתיות בקרב הלוחמים. מדובר ביצירת תחושה של מטרה משותפת וטיפוח תחושת בּעלות.</p>
+            <p>המעבר מ"ציות" ל"מחויבות" הוא בעל חשיבות עליונה בתווך הימי. לוחמים הפועלים מתוך יוזמה ומעורבות אישית, ולא רק מתוך ציות לפקודות, הם בעלי יכולת הסתגלות ויעילות רבה יותר. טיפוח מחויבות באמצעות מנהיגות מעצבת בונה כוח לחימה עמיד, מסתגל ובעל יכולת תפקוד גבוהה יותר במצבים מעורפלים או מבוזרים.</p>
+        </section>
+
+        <section id="pillars" class="card">
+            <h3>ארבעת עמודי התווך של מנהיגות מעצבת</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="p-4 border rounded-lg shadow-sm bg-blue-50">
+                    <h4 class="text-xl font-semibold text-blue-700 mb-2"><span class="text-2xl mr-2">🌟</span>השפעה אידיאלית (Idealized Influence - II)</h4>
+                    <p><strong>תיאור:</strong> מנהיגים משמשים מודל לחיקוי כריזמטי, מגלמים התנהגות אתית וזוכים לאמון ולכבוד בלתי מסויג. מונהגים שואפים לחקות אותם ולאמץ את ערכיהם. מדובר ב"ללכת את הדרך".</p>
+                    <p><strong>רלוונטיות צבאית:</strong> סגן מפקד מחלקה המפגין יושרה בלתי מתפשרת, אומץ לב ומסירות הופך למגדלור עבור חייליו, ומעורר נאמנות ודבקות בערכי היחידה. לוחמים גאים להיות קשורים למנהיג כזה.</p>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm bg-yellow-50">
+                    <h4 class="text-xl font-semibold text-yellow-700 mb-2"><span class="text-2xl mr-2">💡</span>מוטיבציה מעוררת השראה (Inspirational Motivation - IM)</h4>
+                    <p><strong>תיאור:</strong> מנהיגים מביעים חזון מגובש, נלהב ואופטימי, המעורר השראה בצוותים לעלות על הציפיות. הם מספקים תחושת מטרה ומשמעות חזקה, מה שגורם למשימות להרגיש חיוניות לתוצאות מהותיות. מדובר ב"להלהיב את ההמונים/לשתף את החזון".</p>
+                    <p><strong>רלוונטיות צבאית:</strong> סגן מפקד מחלקה שיכול לתקשר בבהירות ובלהט את "למה" שמאחורי המשימה – מעבר ל"מה" בלבד – משרה מסירות רבה יותר ונכונות להשקיע מאמץ נוסף. זה מטפח תחושת משימה ומטרה משותפת.</p>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm bg-green-50">
+                    <h4 class="text-xl font-semibold text-green-700 mb-2"><span class="text-2xl mr-2">🧠</span>גירוי אינטלקטואלי (Intellectual Stimulation - IS)</h4>
+                    <p><strong>תיאור:</strong> מנהיגים מעודדים תקשורת פתוחה, מקבלים בברכה רעיונות חדשים ומקשיבים לפרספקטיבות שונות. הם מאתגרים הנחות, מטפחים חשיבה עצמאית ורואים בכישלון הזדמנות ללמידה. הם מעצימים מונהגים לשאול שאלות ולחשוב באופן ביקורתי.</p>
+                    <p><strong>רלוונטיות צבאית:</strong> בסביבה מבצעית המשתנה במהירות, סגן מפקד מחלקה המעודד פתרון בעיות חדשני וחשיבה ביקורתית בקרב מפקדי הכיתות והלוחמים שלו יכול להסתגל ביעילות רבה יותר לאתגרים בלתי צפויים. זה מטפח תרבות של שיפור מתמיד ויכולת הסתגלות.</p>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm bg-red-50">
+                    <h4 class="text-xl font-semibold text-red-700 mb-2"><span class="text-2xl mr-2">❤️</span>התחשבות אישית (Individualized Consideration - IC)</h4>
+                    <p><strong>תיאור:</strong> מנהיגים הם מאזינים מיומנים ואמפתיים, המומחים בלגרום לחברי הצוות להרגיש ששומעים אותם. הם מתאימים סגנונות ניהול לצרכים אישיים, מתמקדים בתרומתו של כל אדם וממליצים על תוכניות הכשרה וחינוך ספציפיות. הם דואגים באמת לרווחתם ופיתוחם של עובדיהם.</p>
+                    <p><strong>רלוונטיות צבאית:</strong> סגן מפקד מחלקה המבין ומתייחס לצרכים ולחוזקות האישיות של חייליו בונה יחסים חזקים יותר ומטפח צמיחה אישית. זה קריטי למורל, שימור כוח אדם ומיצוי הפוטנציאל האישי בתוך המחלקה.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="importance" class="card">
+            <h3>מדוע מנהיגות מעצבת חיונית לאפקטיביות המחלקה ולפיתוח החייל?</h3>
+            <p>מנהיגות מעצבת אינה רק תיאוריה, אלא גישה מעשית עם השפעות מוכחות:</p>
+            <ul class="list-disc ml-5 space-y-2">
+                <li><strong class="text-accent1-600">שביעות רצון ומחויבות גבוהות יותר:</strong> לוחמים המרגישים מוערכים ומקבלים השראה נוטים להיות מרוצים יותר ומחויבים יותר ליחידה ולמשימה.</li>
+                <li><strong class="text-accent1-600">מאמץ ופרודוקטיביות משופרים:</strong> מוטיבציה פנימית הנובעת מתחושת משמעות מובילה למאמץ רב יותר ולהישגים טובים יותר.</li>
+                <li><strong class="text-accent1-600">אפקטיביות ארגונית מוגברת:</strong> צוותים המונהגים על ידי מנהיגים מעצבים הם לרוב יעילים יותר, מגובשים יותר ובעלי יכולת הסתגלות גבוהה יותר.</li>
+                <li><strong class="text-accent1-600">שיעורי תחלופה והיעדרות נמוכים יותר:</strong> סביבת עבודה חיובית ותומכת תורמת לשימור כוח אדם איכותי.</li>
+                <li><strong class="text-accent1-600">שיפור לכידות היחידה, מורל ומוכנות:</strong> מנהיגות מעצבת מעצימה את הלוחמים, מטפחת יעילות עצמית ויוצרת אקלים של שיתוף פעולה ואמון, שהם קריטיים להצלחה במשימות צבאיות.</li>
+                <li><strong class="text-accent1-600">פיתוח אישי ומקצועי:</strong> התחשבות אישית וגירוי אינטלקטואלי תורמים לצמיחה של כל חייל, ומכינים אותו לתפקידים עתידיים.</li>
+            </ul>
+            <p>בסופו של דבר, מנהיגות מעצבת תורמת ישירות ל"מוכנות" של המחלקה, לא רק במונחי ציוד, אלא במונחי "מוכנות אנושית" – היכולת של הלוחמים והיחידה כולה להתמודד עם אתגרים ולהשיג יעדים.</p>
+        </section>
+
+        <section id="tool" class="card">
+            <h2>פרק 2: כלי אבחון המנהיגות של המחלקה – מבנה ויישום</h2>
+            <h3>מטרת הפיתוח ופילוסופיית העיצוב: אינטואיטיבי, מעשי וממוקד חזותית</h3>
+            <p>כלי אבחון זה תוכנן להיות ברור, אינטואיטיבי, ויזואלי ומושך את העין. המטרה היא לא רק הערכה, אלא לשמש מפת דרכים לצמיחה, המספקת נראות לביצועים גבוהים וכיצד להתקדם. העיצוב שם דגש על קלות שימוש ומעורבות מרבית, במיוחד בסביבה צבאית דינמית.</p>
+
+            <h3>כיצד פועל מנגנון המשוב של 360 מעלות (עצמי מול מפקד)</h3>
+            <p>האבחון משתמש בגישת 360 מעלות, האוספת משוב משני מקורות עיקריים:</p>
+            <ol class="list-decimal ml-5 space-y-2">
+                <li><strong>הערכה עצמית:</strong> הסגן מעריך את עצמו על סמך התנהגויות מנהיגותיות.</li>
+                <li><strong>הערכת מפקד:</strong> קצין המחלקה (החונך) מעריך את הסגן על סמך אותן התנהגויות.</li>
+            </ol>
+            <p>שילוב שתי הפרספקטיבות הללו מאפשר זיהוי פערים בין התפיסה העצמית לבין האופן בו המנהיגות נתפסת על ידי אחרים, ומספק תמונה מלאה ואובייקטיבית יותר. פערים אלו הם הזדמנויות ללמידה ופיתוח.</p>
+            <div class="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <h4 class="font-semibold text-lg mb-2 text-center">תהליך האבחון</h4>
+                <div class="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="text-center p-3 bg-blue-100 rounded-lg shadow">
+                        <span class="text-3xl">👤</span>
+                        <p class="mt-1">הערכה עצמית (סגן)</p>
+                    </div>
+                    <div class="text-2xl text-gray-500 transform rotate-90 md:rotate-0">➔</div>
+                    <div class="text-center p-3 bg-green-100 rounded-lg shadow">
+                        <span class="text-3xl">🧑‍✈️</span>
+                        <p class="mt-1">הערכת מפקד</p>
+                    </div>
+                    <div class="text-2xl text-gray-500 transform rotate-90 md:rotate-0">➔</div>
+                    <div class="text-center p-3 bg-yellow-100 rounded-lg shadow">
+                        <span class="text-3xl">📊</span>
+                        <p class="mt-1">השוואה וניתוח</p>
+                    </div>
+                    <div class="text-2xl text-gray-500 transform rotate-90 md:rotate-0">➔</div>
+                    <div class="text-center p-3 bg-red-100 rounded-lg shadow">
+                        <span class="text-3xl">📈</span>
+                        <p class="mt-1">תוכנית פיתוח</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-6">הבנת סולם הדירוג: גישה מעוגנת התנהגותית (BARS)</h3>
+            <p>ההערכה משתמשת בסולם דירוג מעוגן התנהגותית (BARS) בן 5 נקודות (0-4). כל נקודה בסולם מקושרת לתיאור התנהגותי ספציפי, מה שמסייע להבנה ברורה של רמות הביצוע השונות. זה מפחית סובייקטיביות ומספק משוב קונקרטי וניתן לפעולה.</p>
+            <p><strong>סולם הדירוג:</strong></p>
+            <ul class="list-none p-0">
+                <li><strong>0 - כלל לא:</strong> ההיגד אינו מתאר את ההתנהגות כלל.</li>
+                <li><strong>1 - לעיתים רחוקות:</strong> ההיגד מתאר את ההתנהגות לעיתים רחוקות.</li>
+                <li><strong>2 - לפעמים:</strong> ההיגד מתאר את ההתנהגות לפעמים.</li>
+                <li><strong>3 - לעיתים קרובות:</strong> ההיגד מתאר את ההתנהגות לעיתים קרובות.</li>
+                <li><strong>4 - לעיתים קרובות, אם לא תמיד:</strong> ההיגד מתאר את ההתנהגות באופן עקבי וברמה גבוהה.</li>
+            </ul>
+        </section>
+
+        <section id="profile" class="card">
+            <h2>פרק 3: פרופיל המנהיגות שלך – תובנות וניתוח</h2>
+            <h3>הדמיית טביעת הרגל המנהיגותית שלך: ניתוח תרשים מכ"ם</h3>
+            <p>תרשים המכ"ם (Radar Chart) מספק ייצוג חזותי של ציוני המנהיגות המעצבת שלך. הוא מציג את ארבעת מרכיבי המנהיגות כצירים, ומאפשר השוואה מיידית בין ההערכה העצמית שלך (קו אחד) להערכת המפקד (קו שני או אזור מוצלל). ככל שהציון גבוה יותר במרכיב מסוים, כך הנקודה על הציר המתאים תהיה רחוקה יותר מהמרכז.</p>
+            <div class="chart-container mx-auto my-6">
+                <canvas id="leadershipRadarChart"></canvas>
+            </div>
+            <p><strong>כיצד לקרוא את התרשים:</strong></p>
+            <ul class="list-disc ml-5">
+                <li><strong>צורת המצולע:</strong> צורה מאוזנת יותר מצביעה על פיתוח דומה בכל ארבעת המרכיבים. צורה לא אחידה מצביעה על חוזקות וחולשות יחסיות.</li>
+                <li><strong>פערים בין הקווים:</strong>
+                    <ul>
+                        <li><strong>הערכה עצמית גבוהה מהערכת המפקד:</strong> עשוי להצביע על פער בתפיסה או על צורך לשפר את האופן בו ההתנהגויות שלך נתפסות על ידי אחרים.</li>
+                        <li><strong>הערכת מפקד גבוהה מהערכה עצמית:</strong> עשוי להצביע על כך שאתה צנוע יותר בהערכתך או שיש לך פוטנציאל לא ממומש שהמפקד מזהה.</li>
+                        <li><strong>קווים קרובים:</strong> מצביע על תפיסה דומה של סגנון המנהיגות שלך.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>פירוט מפורט לפי מרכיב מנהיגות מעצבת: חוזקות ותחומי פיתוח</h3>
+            <p>לאחר מילוי הטפסים, התוצאות ינותחו כאן, תוך התייחסות לכל אחד מארבעת המרכיבים. הניתוח יכלול:</p>
+            <ul class="list-disc ml-5">
+                <li><strong>ניתוח ציונים:</strong> דיון בציונים עבור כל מרכיב (גבוה, בינוני, נמוך).</li>
+                <li><strong>חוזקות ("נקודות לשימור"):</strong> תחומים בהם הדירוגים גבוהים, עם דוגמאות התנהגותיות.</li>
+                <li><strong>תחומי פיתוח ("נקודות לשיפור"):</strong> מרכיבים עם ציונים נמוכים יותר או פערים משמעותיים, עם התנהגויות ספציפיות הדורשות שיפור.</li>
+            </ul>
+            <div id="resultsAnalysis" class="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <p class="text-center text-gray-500">ניתוח התוצאות יופיע כאן לאחר מילוי הטפסים והפקת התרשים.</p>
+            </div>
+        </section>
+
+        <section id="roadmap" class="card">
+            <h2>פרק 4: בניית מפת הדרכים לפיתוח שלך – הנחיית חניכה מעשית</h2>
+            <h3>תרגום תובנות לפעולה: הצבת יעדי SMART לצמיחה מנהיגותית</h3>
+            <p>האבחון הוא רק הצעד הראשון. פיתוח אמיתי דורש תרגום של התובנות מההערכה ליעדים קונקרטיים וניתנים למדידה. מומלץ להשתמש במודל SMART לקביעת יעדים:</p>
+            <ul class="list-disc ml-5">
+                <li><strong>S</strong>pecific (ספציפי): מה בדיוק אתה רוצה להשיג?</li>
+                <li><strong>M</strong>easurable (מדיד): איך תדע שהשגת את היעד?</li>
+                <li><strong>A</strong>chievable (בר השגה): האם היעד ריאלי בהתחשב במשאבים וביכולות שלך?</li>
+                <li><strong>R</strong>elevant (רלוונטי): האם היעד תורם למטרות הגדולות יותר שלך ושל היחידה?</li>
+                <li><strong>T</strong>ime-bound (מוגבל בזמן): מתי תשיג את היעד?</li>
+            </ul>
+            <p>תהליך זה צריך להתבצע בשיתוף פעולה עם המפקד שלך, תוך התמקדות ב"נקודות לשיפור" שזוהו ובמינוף "נקודות לשימור".</p>
+        </section>
+
+        <section id="strategies" class="card">
+            <h3>אסטרטגיות ספציפיות לשיפור כל התנהגות מנהיגות מעצבת</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-lg font-semibold text-blue-700 mb-2">השפעה אידיאלית (II)</h4>
+                    <ul class="list-disc ml-5 text-sm">
+                        <li>היה מודל לחיקוי עקבי בערכים ובמעשים.</li>
+                        <li>קח אחריות על טעויות והפק לקחים.</li>
+                        <li>הפגן אומץ לב מוסרי ועמוד על עקרונותיך.</li>
+                        <li>שתף את ה"אני מאמין" שלך עם פקודיך.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-yellow-700 mb-2">מוטיבציה מעוררת השראה (IM)</h4>
+                    <ul class="list-disc ml-5 text-sm">
+                        <li>תקשר חזון ברור ומשכנע למחלקה.</li>
+                        <li>הדגש את חשיבות המשימה והתרומה של כל חייל.</li>
+                        <li>הפגן התלהבות ואופטימיות, גם במצבים קשים.</li>
+                        <li>השתמש בסיפורים ובדוגמאות כדי להמחיש את המסר שלך.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-green-700 mb-2">גירוי אינטלקטואלי (IS)</h4>
+                    <ul class="list-disc ml-5 text-sm">
+                        <li>עודד חשיבה ביקורתית ושאילת שאלות.</li>
+                        <li>אתגר הנחות יסוד ודרכי פעולה קיימות.</li>
+                        <li>צור סביבה בטוחה לניסוי וטעייה.</li>
+                        <li>בקש רעיונות ופתרונות מהלוחמים שלך.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-red-700 mb-2">התחשבות אישית (IC)</h4>
+                    <ul class="list-disc ml-5 text-sm">
+                        <li>הקדש זמן להכיר כל חייל באופן אישי.</li>
+                        <li>הקשב באופן פעיל ואמפתי לצרכים ולדאגות שלהם.</li>
+                        <li>ספק משוב אישי ובונה.</li>
+                        <li>תמוך בפיתוח האישי והמקצועי של כל חייל.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="commander" class="card">
+            <h3>הנחיה לקצין המחלקה: מקסום השפעת החניכה</h3>
+            <p>כמפקד וחונך, תפקידך חיוני בתהליך הפיתוח של הסגן. הנה מספר קווים מנחים:</p>
+            <ul class="list-disc ml-5">
+                <li><strong>הכן את שיחת המשוב:</strong> תכנן את השיחה, התחל בנקודות החוזק, ועבור בהדרגה לתחומי הפיתוח.</li>
+                <li><strong>צור אווירה תומכת:</strong> הדגש שהמטרה היא צמיחה ולמידה, לא שיפוט.</li>
+                <li><strong>דון בפערים:</strong> אם קיימים פערים בין ההערכה העצמית להערכתך, דון בהם בפתיחות. עזור לסגן להבין את הסיבות האפשריות לפערים אלו.</li>
+                <li><strong>התמקד בהתנהגויות:</strong> השתמש בדוגמאות התנהגותיות ספציפיות (מעוגני ה-BARS) כדי להמחיש את הנקודות שלך.</li>
+                <li><strong>עודד מחויבות:</strong> השתמש בשכנוע רציונלי ובניית יחסים כדי לעודד את הסגן לקחת אחריות על תהליך הפיתוח שלו.</li>
+                <li><strong>ספק תמיכה מתמשכת:</strong> קבע פגישות מעקב, ספק משוב שוטף, והיה זמין לשאלות ותמיכה.</li>
+            </ul>
+        </section>
+
+        <section id="forms" class="card">
+            <h2>טפסי אבחון</h2>
+            <p>אנא מלאו את הטפסים הבאים באופן אישי וכנה. הסגן ממלא את טופס ההערכה העצמית, והמפקד ממלא את טופס הערכת המפקד. התוצאות ישמשו ליצירת פרופיל המנהיגות ולדיון משותף.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-blue-600">נספח א': טופס אבחון עצמי – סגן קצין מחלקה</h3>
+                    <form id="selfAssessmentForm">
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-blue-700">א. השפעה אידיאלית (Idealized Influence)</h4>
+                            <p class="text-sm text-gray-600 mb-3">מנהיגות כמודל לחיקוי, יושרה, אמון וכבוד.</p>
+                            <div class="form-question">
+                                <label for="self_ii_1">1. אני פועל בדרכים הבונות כבוד אצל אחרים כלפיי.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ii_1" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ii_1" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ii_1" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ii_1" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ii_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: לעיתים רחוקות מפגין התנהגות אתית או זוכה לאמון. 4: משמש באופן עקבי מודל לחיקוי מעורר השראה.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_ii_2">2. אחרים גאים להיות קשורים אליי.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ii_2" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ii_2" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ii_2" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ii_2" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ii_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אחרים אינם מביעים גאווה להיות קשורים אליי. 4: אחרים מביעים גאווה רבה להיות קשורים אליי.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_ii_3">3. אני מדבר על הערכים והאמונות החשובים ביותר שלי.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ii_3" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ii_3" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ii_3" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ii_3" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ii_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני משתף את ערכיי ואמונותיי. 4: משתף באופן עקבי את ערכיי ופועל לפיהם.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-yellow-700">ב. מוטיבציה מעוררת השראה (Inspirational Motivation)</h4>
+                            <p class="text-sm text-gray-600 mb-3">הבעת חזון, יצירת משמעות, העלאת ציפיות.</p>
+                             <div class="form-question">
+                                <label for="self_im_1">1. אני מספק תמונות מושכות לגבי מה שאנחנו יכולים לעשות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_im_1" value="0"> 0</label>
+                                    <label><input type="radio" name="self_im_1" value="1"> 1</label>
+                                    <label><input type="radio" name="self_im_1" value="2"> 2</label>
+                                    <label><input type="radio" name="self_im_1" value="3"> 3</label>
+                                    <label><input type="radio" name="self_im_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: מתקשה להביע חזון ברור. 4: מביע באופן עקבי חזון מעורר השראה וברור.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_im_2">2. אני עוזר לאחרים למצוא משמעות בעבודתם.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_im_2" value="0"> 0</label>
+                                    <label><input type="radio" name="self_im_2" value="1"> 1</label>
+                                    <label><input type="radio" name="self_im_2" value="2"> 2</label>
+                                    <label><input type="radio" name="self_im_2" value="3"> 3</label>
+                                    <label><input type="radio" name="self_im_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני עוזר לאחרים למצוא משמעות. 4: עוזר באופן עקבי למצוא משמעות עמוקה.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_im_3">3. אני מדבר באופטימיות על העתיד.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_im_3" value="0"> 0</label>
+                                    <label><input type="radio" name="self_im_3" value="1"> 1</label>
+                                    <label><input type="radio" name="self_im_3" value="2"> 2</label>
+                                    <label><input type="radio" name="self_im_3" value="3"> 3</label>
+                                    <label><input type="radio" name="self_im_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: נוטה לפסימיות. 4: מדבר באופן עקבי באופטימיות והתלהבות.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-green-700">ג. גירוי אינטלקטואלי (Intellectual Stimulation)</h4>
+                            <p class="text-sm text-gray-600 mb-3">עידוד חשיבה ביקורתית, חדשנות, אתגור הנחות.</p>
+                            <div class="form-question">
+                                <label for="self_is_1">1. אני גורם לאחרים לחשוב מחדש על רעיונות שמעולם לא הטילו בהם ספק קודם לכן.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_is_1" value="0"> 0</label>
+                                    <label><input type="radio" name="self_is_1" value="1"> 1</label>
+                                    <label><input type="radio" name="self_is_1" value="2"> 2</label>
+                                    <label><input type="radio" name="self_is_1" value="3"> 3</label>
+                                    <label><input type="radio" name="self_is_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני מעודד חשיבה ביקורתית. 4: מטפח באופן עקבי סביבה של חשיבה ביקורתית.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_is_2">2. אני מאפשר לאחרים לחשוב על בעיות ישנות בדרכים חדשות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_is_2" value="0"> 0</label>
+                                    <label><input type="radio" name="self_is_2" value="1"> 1</label>
+                                    <label><input type="radio" name="self_is_2" value="2"> 2</label>
+                                    <label><input type="radio" name="self_is_2" value="3"> 3</label>
+                                    <label><input type="radio" name="self_is_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני מאפשר חשיבה חדשנית. 4: מאפשר באופן עקבי חשיבה על בעיות בדרכים חדשות.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_is_3">3. אני מחפש פרספקטיבות שונות בעת פתרון בעיות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_is_3" value="0"> 0</label>
+                                    <label><input type="radio" name="self_is_3" value="1"> 1</label>
+                                    <label><input type="radio" name="self_is_3" value="2"> 2</label>
+                                    <label><input type="radio" name="self_is_3" value="3"> 3</label>
+                                    <label><input type="radio" name="self_is_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: מסתמך על דעתי בלבד. 4: מחפש באופן פעיל פרספקטיבות מגוונות.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-red-700">ד. התחשבות אישית (Individualized Consideration)</h4>
+                            <p class="text-sm text-gray-600 mb-3">התייחסות אישית, חניכה, פיתוח פרטני.</p>
+                            <div class="form-question">
+                                <label for="self_ic_1">1. אני עוזר לאחרים לפתח את עצמם.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ic_1" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ic_1" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ic_1" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ic_1" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ic_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני מגלה עניין בפיתוח אישי של לוחמים. 4: מגלה עניין אמיתי ומספק תמיכה ממוקדת.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_ic_2">2. אני נותן יחס אישי לאחרים שנראים מנוכרים.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ic_2" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ic_2" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ic_2" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ic_2" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ic_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני נותן יחס אישי למנוכרים. 4: נותן באופן עקבי יחס אישי למנוכרים.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="self_ic_3">3. אני משקיע זמן בהוראה ובחניכה.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="self_ic_3" value="0"> 0</label>
+                                    <label><input type="radio" name="self_ic_3" value="1"> 1</label>
+                                    <label><input type="radio" name="self_ic_3" value="2"> 2</label>
+                                    <label><input type="radio" name="self_ic_3" value="3"> 3</label>
+                                    <label><input type="radio" name="self_ic_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: איני משקיע זמן בהוראה וחניכה. 4: משקיע באופן קבוע זמן משמעותי בהוראה וחניכה.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-green-600">נספח ב': טופס הערכת מפקד – סגן קצין מחלקה</h3>
+                    <form id="commanderAssessmentForm">
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-blue-700">א. השפעה אידיאלית (Idealized Influence)</h4>
+                            <p class="text-sm text-gray-600 mb-3">מנהיגות כמודל לחיקוי, יושרה, אמון וכבוד.</p>
+                            <div class="form-question">
+                                <label for="commander_ii_1">1. פועל בדרכים הבונות כבוד אצל אחרים כלפיו.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ii_1" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ii_1" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ii_1" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ii_1" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ii_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: לעיתים רחוקות מפגין התנהגות אתית או זוכה לאמון. 4: משמש באופן עקבי מודל לחיקוי מעורר השראה.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_ii_2">2. אחרים גאים להיות קשורים אליו.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ii_2" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ii_2" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ii_2" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ii_2" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ii_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אחרים אינם מביעים גאווה להיות קשורים אליו. 4: אחרים מביעים גאווה רבה להיות קשורים אליו.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_ii_3">3. מדבר על הערכים והאמונות החשובים ביותר שלו.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ii_3" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ii_3" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ii_3" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ii_3" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ii_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו משתף את ערכיו ואמונותיו. 4: משתף באופן עקבי את ערכיו ופועל לפיהם.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-yellow-700">ב. מוטיבציה מעוררת השראה (Inspirational Motivation)</h4>
+                            <p class="text-sm text-gray-600 mb-3">הבעת חזון, יצירת משמעות, העלאת ציפיות.</p>
+                            <div class="form-question">
+                                <label for="commander_im_1">1. מספק תמונות מושכות לגבי מה שהם יכולים לעשות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_im_1" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_im_1" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_im_1" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_im_1" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_im_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: מתקשה להביע חזון ברור. 4: מביע באופן עקבי חזון מעורר השראה וברור.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_im_2">2. עוזר לאחרים למצוא משמעות בעבודתם.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_im_2" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_im_2" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_im_2" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_im_2" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_im_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו עוזר לאחרים למצוא משמעות. 4: עוזר באופן עקבי למצוא משמעות עמוקה.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_im_3">3. מדבר באופטימיות על העתיד.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_im_3" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_im_3" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_im_3" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_im_3" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_im_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: נוטה לפסימיות. 4: מדבר באופן עקבי באופטימיות והתלהבות.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-green-700">ג. גירוי אינטלקטואלי (Intellectual Stimulation)</h4>
+                            <p class="text-sm text-gray-600 mb-3">עידוד חשיבה ביקורתית, חדשנות, אתגור הנחות.</p>
+                            <div class="form-question">
+                                <label for="commander_is_1">1. גורם לאחרים לחשוב מחדש על רעיונות שמעולם לא הטילו בהם ספק קודם לכן.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_is_1" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_is_1" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_is_1" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_is_1" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_is_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו מעודד חשיבה ביקורתית. 4: מטפח באופן עקבי סביבה של חשיבה ביקורתית.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_is_2">2. מאפשר לאחרים לחשוב על בעיות ישנות בדרכים חדשות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_is_2" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_is_2" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_is_2" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_is_2" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_is_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו מאפשר חשיבה חדשנית. 4: מאפשר באופן עקבי חשיבה על בעיות בדרכים חדשות.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_is_3">3. מחפש פרספקטיבות שונות בעת פתרון בעיות.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_is_3" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_is_3" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_is_3" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_is_3" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_is_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: מסתמך על דעתו בלבד. 4: מחפש באופן פעיל פרספקטיבות מגוונות.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4 class="text-lg font-medium mb-2 text-red-700">ד. התחשבות אישית (Individualized Consideration)</h4>
+                            <p class="text-sm text-gray-600 mb-3">התייחסות אישית, חניכה, פיתוח פרטני.</p>
+                            <div class="form-question">
+                                <label for="commander_ic_1">1. עוזר לאחרים לפתח את עצמם.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ic_1" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ic_1" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ic_1" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ic_1" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ic_1" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו מגלה עניין בפיתוח אישי של לוחמים. 4: מגלה עניין אמיתי ומספק תמיכה ממוקדת.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_ic_2">2. נותן יחס אישי לאחרים שנראים מנוכרים.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ic_2" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ic_2" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ic_2" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ic_2" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ic_2" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו נותן יחס אישי למנוכרים. 4: נותן באופן עקבי יחס אישי למנוכרים.</p>
+                            </div>
+                            <div class="form-question">
+                                <label for="commander_ic_3">3. משקיע זמן בהוראה ובחניכה.</label>
+                                <div class="options">
+                                    <label><input type="radio" name="commander_ic_3" value="0"> 0</label>
+                                    <label><input type="radio" name="commander_ic_3" value="1"> 1</label>
+                                    <label><input type="radio" name="commander_ic_3" value="2"> 2</label>
+                                    <label><input type="radio" name="commander_ic_3" value="3"> 3</label>
+                                    <label><input type="radio" name="commander_ic_3" value="4"> 4</label>
+                                </div>
+                                <p class="anchor-text">0: אינו משקיע זמן בהוראה או בחניכה. 4: משקיע באופן קבוע זמן משמעותי בהוראה וחניכה.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button id="generateReportBtn" class="btn btn-primary text-lg">הפק דוח והצג תרשים</button>
+            </div>
+        </section>
+
+        <section id="conclusion" class="card mt-12">
+            <h2>מסקנה: מובילים את הדרך קדימה</h2>
+            <p>מנהיגות מעצבת היא גישה חיונית לבניית יחידות צבאיות בעלות ביצועים גבוהים ועמידות. היא חורגת מפיקוד מסורתי, ומעוררת השראה בלוחמים להשיג מעבר לציפיות על ידי התאמת ערכיהם לייעוד היחידה, טיפוח מחויבות, חדשנות ובניית צוותים מגובשים.</p>
+            <p>כלי אבחון זה משמש ככלי רב עוצמה למודעות עצמית, פיתוח ממוקד וחניכה יעילה. על ידי מתן תמונה ברורה וניתנת לפעולה של סגנון המנהיגות הטבעי של סגן קצין מחלקה, תוך הדגשת חוזקות ותחומי שיפור באמצעות משוב של 360 מעלות ועוגנים התנהגותיים, הוא מסייע לדייק את תהליך החניכה. הוא מאפשר למפקדים להציע אימון קונקרטי ומדויק, ומעצים את הסגנים לקחת בעלות על מסע הפיתוח שלהם באמצעות יעדי SMART ואסטרטגיות ממוקדות.</p>
+            <p>פיתוח מנהיגות הוא מסע מתמשך של למידה והסתגלות. על ידי אימוץ גישת צמיחה, למידה מטעויות ושיפור מתמיד, סגן קצין מחלקה יכול לממש את מלוא הפוטנציאל המנהיגותי שלו. באמצעות מחויבות לפיתוח מנהיגות, לסגן יש את היכולת להשפיע באופן משמעותי על הצלחת מחלקתו ועל המשימה הצבאית הרחבה יותר, ובכך להוביל את הדרך קדימה.</p>
+        </section>
+
+        <footer class="text-center mt-12 py-4 text-sm text-gray-600">
+            <p>כלי אבחון מנהיגות מעצבת. פותח בהשראת עקרונות הפיתוח המנהיגותי.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        let leadershipRadarChartInstance = null;
+
+        function wrapText(text, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length > maxWidth) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine += " " + words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        function getFormValues(formId) {
+            const form = document.getElementById(formId);
+            const data = {
+                ii: [],
+                im: [],
+                is: [],
+                ic: []
+            };
+            const sections = ['ii', 'im', 'is', 'ic'];
+            sections.forEach(section => {
+                for (let i = 1; i <= 3; i++) {
+                    const radioName = `${formId.startsWith('self') ? 'self' : 'commander'}_${section}_${i}`;
+                    const selectedRadio = form.querySelector(`input[name="${radioName}"]:checked`);
+                    if (selectedRadio) {
+                        data[section].push(parseInt(selectedRadio.value));
+                    } else {
+                        data[section].push(0); // Default to 0 if not selected
+                    }
+                }
+            });
+            return {
+                ii: data.ii.reduce((a, b) => a + b, 0) / data.ii.length || 0,
+                im: data.im.reduce((a, b) => a + b, 0) / data.im.length || 0,
+                is: data.is.reduce((a, b) => a + b, 0) / data.is.length || 0,
+                ic: data.ic.reduce((a, b) => a + b, 0) / data.ic.length || 0,
+            };
+        }
+
+        function generateReport() {
+            const selfData = getFormValues('selfAssessmentForm');
+            const commanderData = getFormValues('commanderAssessmentForm');
+
+            const labels = [
+                wrapText('השפעה אידיאלית (II)', 16),
+                wrapText('מוטיבציה מעוררת השראה (IM)', 16),
+                wrapText('גירוי אינטלקטואלי (IS)', 16),
+                wrapText('התחשבות אישית (IC)', 16)
+            ];
+
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'הערכה עצמית (סגן)',
+                        data: [selfData.ii, selfData.im, selfData.is, selfData.ic],
+                        fill: true,
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)', // #FF6B6B with alpha
+                        borderColor: '#FF6B6B',
+                        pointBackgroundColor: '#FF6B6B',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#FF6B6B'
+                    },
+                    {
+                        label: 'הערכת מפקד',
+                        data: [commanderData.ii, commanderData.im, commanderData.is, commanderData.ic],
+                        fill: true,
+                        backgroundColor: 'rgba(6, 214, 160, 0.2)', // #06D6A0 with alpha
+                        borderColor: '#06D6A0',
+                        pointBackgroundColor: '#06D6A0',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#06D6A0'
+                    }
+                ]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 4,
+                            ticks: {
+                                stepSize: 1,
+                                backdropColor: 'rgba(255, 255, 255, 0.75)', // Make ticks more readable
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                callback: function(value) {
+                                    if (Array.isArray(value)) {
+                                        return value; // Already an array of strings
+                                    }
+                                    return value; // Single line
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    // tooltipItems is an array, take the first item
+                                    const item = tooltipItems[0];
+                                    // Access the label using the item's datasetIndex and dataIndex
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    // Check if the label is an array (multiline)
+                                    if (Array.isArray(label)) {
+                                      // Join the array elements with a space for display
+                                      return label.join(' ');
+                                    } else {
+                                      // If it's a single line label, return it as is
+                                      return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const ctx = document.getElementById('leadershipRadarChart').getContext('2d');
+            if (leadershipRadarChartInstance) {
+                leadershipRadarChartInstance.destroy();
+            }
+            leadershipRadarChartInstance = new Chart(ctx, config);
+
+            // Update results analysis section
+            const resultsAnalysisDiv = document.getElementById('resultsAnalysis');
+            resultsAnalysisDiv.innerHTML = `
+                <h4 class="text-lg font-semibold mb-2 text-gray-700">ניתוח תוצאות:</h4>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">מרכיב</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">הערכה עצמית</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">הערכת מפקד</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">פער</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">השפעה אידיאלית</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${selfData.ii.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${commanderData.ii.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${(commanderData.ii - selfData.ii).toFixed(1)}</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">מוטיבציה מעוררת השראה</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${selfData.im.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${commanderData.im.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${(commanderData.im - selfData.im).toFixed(1)}</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">גירוי אינטלקטואלי</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${selfData.is.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${commanderData.is.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${(commanderData.is - selfData.is).toFixed(1)}</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">התחשבות אישית</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${selfData.ic.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${commanderData.ic.toFixed(1)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${(commanderData.ic - selfData.ic).toFixed(1)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="mt-4 text-sm text-gray-600"><strong>פרשנות פערים:</strong> פער חיובי (הערכת מפקד גבוהה יותר) עשוי להצביע על פוטנציאל לא ממומש או צניעות. פער שלילי (הערכה עצמית גבוהה יותר) עשוי להצביע על צורך בפיתוח מודעות עצמית או בשיפור האופן בו ההתנהגויות נתפסות. שיחה עם המפקד תסייע להבין את המשמעויות.</p>
+            `;
+        }
+
+        document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+        // Initialize with empty chart or placeholder data on load
+        window.onload = () => {
+            const initialLabels = [
+                wrapText('השפעה אידיאלית (II)', 16),
+                wrapText('מוטיבציה מעוררת השראה (IM)', 16),
+                wrapText('גירוי אינטלקטואלי (IS)', 16),
+                wrapText('התחשבות אישית (IC)', 16)
+            ];
+            const initialData = {
+                labels: initialLabels,
+                datasets: [
+                    {
+                        label: 'הערכה עצמית (סגן)',
+                        data: [0, 0, 0, 0],
+                        fill: true,
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)',
+                        borderColor: '#FF6B6B',
+                        pointBackgroundColor: '#FF6B6B',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#FF6B6B'
+                    },
+                    {
+                        label: 'הערכת מפקד',
+                        data: [0, 0, 0, 0],
+                        fill: true,
+                        backgroundColor: 'rgba(6, 214, 160, 0.2)',
+                        borderColor: '#06D6A0',
+                        pointBackgroundColor: '#06D6A0',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#06D6A0'
+                    }
+                ]
+            };
+            const initialConfig = {
+                type: 'radar',
+                data: initialData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 4,
+                            ticks: { stepSize: 1, backdropColor: 'rgba(255, 255, 255, 0.75)', font: { size: 10 } },
+                            pointLabels: {
+                                font: { size: 12, weight: 'bold' },
+                                callback: function(value) {
+                                    if (Array.isArray(value)) { return value; }
+                                    return value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 14 }}},
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) { return label.join(' '); }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            const ctx = document.getElementById('leadershipRadarChart').getContext('2d');
+            leadershipRadarChartInstance = new Chart(ctx, initialConfig);
+        };
+    </script>
+</body>
+</html>
